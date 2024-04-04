@@ -49,6 +49,8 @@ class Point:
                 self.c = (50, 200, 50)
             case 2:
                 self.c = (160, 60, 190)
+            case 3:
+                self.c = (190, 190, 20)
 
     def draw(self):
         pygame.draw.circle(self.screen, self.c, self.pos, 10)

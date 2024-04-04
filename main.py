@@ -78,6 +78,8 @@ while running:
                     press_hist_l.append(cal_pos)
                     if len(press_hist_l) % 2 == 0:
                         lines.append(geom.Line(screen, press_hist_l[-1], press_hist_l[-2]))
+                    else:
+                        points.append(geom.Point(screen, cal_pos, connection=3))
                 case geom.Shape.CIRCLE:
                     press_hist_c.append(cal_pos)
                     if len(press_hist_c) % 3 == 0:
@@ -85,6 +87,8 @@ while running:
                                 press_hist_c[-1] != press_hist_c[-3]:
                             circles.append(
                                 geom.Circle(screen, press_hist_c[-1], press_hist_c[-2], press_hist_c[-3]))
+                    else:
+                        points.append(geom.Point(screen, cal_pos, connection=3))
     screen.fill((50, 50, 50))
     for i in range(16):
         pygame.draw.line(screen, (200, 200, 200), (50 + 75 * i, 0), (50 + 75 * i, 800))
@@ -104,13 +108,12 @@ while running:
         for line1 in lines:
             for line2 in lines:
                 try:
-                    int_x = (line2.c - line1.c)/(line1.m - line2.m)
+                    int_x = (line2.c - line1.c) / (line1.m - line2.m)
                     int_y = line1.m * int_x + line1.c
                     oc.add_point((int_x, int_y))
                     points.append(geom.Point(screen, (int_x, int_y), connection=2))
-                except:
+                except ZeroDivisionError:
                     pass
-
 
     b_points.render()
     b_lines.render()
