@@ -1,6 +1,5 @@
 import numpy as np
 import pygame
-import pygame.gfxdraw
 from enum import Enum
 
 
@@ -47,8 +46,6 @@ class Point:
         pygame.draw.circle(self.screen, self.c, self.pos, 10)
 
 
-# TODO: Use Occupied class for lines and circles
-
 class Line:
     def __init__(self, screen, pos_1, pos_2):
         self.screen = screen
@@ -87,6 +84,5 @@ class Circle:
         Point(self.screen, self.pos[0], connection=True).draw()
         Point(self.screen, self.pos[1], connection=True).draw()
         Point(self.screen, self.pos[2], connection=True).draw()
-        # c, r = _3points_to_2(self.pos)
         c, r = define_circle(self.pos)
-        pygame.gfxdraw.filled_circle(self.screen, c[0], c[1], r, (0, 0, 255, 150))
+        pygame.draw.circle(self.screen, (0, 0, 255), c, r, 3)
