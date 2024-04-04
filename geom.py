@@ -39,13 +39,16 @@ class Occupied:
 
 
 class Point:
-    def __init__(self, screen, pos, connection=False):
+    def __init__(self, screen, pos, connection=0):
         self.screen = screen
         self.pos = pos
-        if connection:
-            self.c = (50, 200, 50)
-        else:
-            self.c = (0, 0, 255)
+        match connection:
+            case 0:
+                self.c = (0, 0, 255)
+            case 1:
+                self.c = (50, 200, 50)
+            case 2:
+                self.c = (160, 60, 190)
 
     def draw(self):
         pygame.draw.circle(self.screen, self.c, self.pos, 10)
@@ -55,10 +58,15 @@ class Line:
     def __init__(self, screen, pos_1, pos_2):
         self.screen = screen
         self.pos = (pos_1, pos_2)
+        try:
+            self.m = (pos_1[1]-pos_2[1])/(pos_1[0]-pos_2[0])
+            self.c = pos_1[1] - self.m * pos_1[0]
+        except ZeroDivisionError:
+            pass
 
     def draw(self):
-        Point(self.screen, self.pos[0], connection=True).draw()
-        Point(self.screen, self.pos[1], connection=True).draw()
+        Point(self.screen, self.pos[0], connection=1).draw()
+        Point(self.screen, self.pos[1], connection=1).draw()
         pygame.draw.line(self.screen, (255, 0, 100), self.pos[0], self.pos[1])
 
 
