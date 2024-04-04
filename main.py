@@ -4,19 +4,19 @@ import geom
 from widgets import Label, Button
 
 pygame.init()
-
 screen = pygame.display.set_mode((1200, 900))
+pygame.display.set_caption("VisGeom")
 
-b_points = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Points",
-                  (183, 183, 183), 200, 800, 100, 50)
-b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Circles",
-                   (183, 183, 183), 400, 800, 100, 50)
-b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Lines",
-                 (183, 183, 183), 600, 800, 100, 50)
+b_points = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), ".",
+                  (183, 183, 183), 200, 830, 20, 20)
+b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "o",
+                   (183, 183, 183), 240, 830, 20, 20)
+b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "/",
+                 (183, 183, 183), 280, 830, 20, 20)
 b_clear = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Clear",
-                 (183, 183, 183), 800, 800, 100, 50)
+                 (183, 183, 183), 1000, 820, 70, 50)
 undo = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Undo",
-              (183, 183, 183), 1000, 800, 100, 50)
+              (183, 183, 183), 1100, 820, 70, 50)
 
 render_type = geom.Shape.IDLE
 
@@ -48,21 +48,27 @@ while running:
             press_hist_c = []
             oc = geom.Occupied()
         if undo.handle_event(event, pos):
-            match render_type:
-                case geom.Shape.POINT:
-                    points.pop()
-                case geom.Shape.LINE:
-                    lines.pop()
-                case geom.Shape.CIRCLE:
-                    circles.pop()
-                case geom.Shape.IDLE:
-                    pass
+            try:
+                match render_type:
+                    case geom.Shape.POINT:
+                        points.pop()
+                    case geom.Shape.LINE:
+                        lines.pop()
+                    case geom.Shape.CIRCLE:
+                        circles.pop()
+                    case geom.Shape.IDLE:
+                        pass
+            except IndexError:
+                pass
         pressed = pygame.mouse.get_pressed()
         cal_pos = None
         if pos[1] < 800:
-            cal_pos = pos
-            if not 20 < pos[0] % 75 < 50 and not 20 < pos[1] % 75 < 50:
+            if oc.in_vicinity(pos) is not None:
+                cal_pos = oc.in_vicinity(pos)
+            elif not (0 < pos[0] % 75 < 20 or 55 < pos[0] < 75) and not (0 < pos[1] % 75 < 20 or 55 < pos[1] < 75):
                 cal_pos = (pos[0] - pos[0] % 75 + 50, pos[1] - pos[1] % 75 + 50)
+            else:
+                cal_pos = pos
         if pressed[0] and cal_pos is not None:
             oc.add_point(cal_pos)
             match render_type:
@@ -100,7 +106,7 @@ while running:
     b_clear.render()
     undo.render()
     if cal_pos is not None and not oc.if_is_occupied(cal_pos):
-        pygame.draw.circle(screen, (80, 80, 80), cal_pos, 10)
+        pygame.draw.circle(screen, (180, 80, 80), cal_pos, 10)
     pygame.display.update()
 
 pygame.quit()

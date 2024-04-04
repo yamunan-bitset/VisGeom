@@ -1,4 +1,3 @@
-import numpy as np
 import pygame
 from enum import Enum
 
@@ -32,13 +31,19 @@ class Occupied:
                     return True
         return False
 
+    def in_vicinity(self, pos):
+        for point in self.occ_pts:
+            if 0 <= abs(pos[0] - point[0]) <= 10 and 0 <= abs(pos[1] - point[1]) <= 10:
+                return point
+        return None
+
 
 class Point:
     def __init__(self, screen, pos, connection=False):
         self.screen = screen
         self.pos = pos
         if connection:
-            self.c = (50, 50, 50)
+            self.c = (50, 200, 50)
         else:
             self.c = (0, 0, 255)
 
@@ -65,13 +70,13 @@ def define_circle(pos):
     det = (a[0] - b[0]) * (b[1] - c[1]) - (b[0] - c[0]) * (a[1] - b[1])
 
     if abs(det) == 0:
-        return None, np.inf
+        return None, None
 
     # Center of circle
     cx = (bc * (b[1] - c[1]) - cd * (a[1] - b[1])) / det
     cy = ((a[0] - b[0]) * cd - (b[0] - c[0]) * bc) / det
 
-    radius = np.sqrt((cx - a[0]) ** 2 + (cy - a[1]) ** 2)
+    radius = ((cx - a[0]) ** 2 + (cy - a[1]) ** 2) ** (1 / 2)
     return (int(cx), int(cy)), int(radius)
 
 
