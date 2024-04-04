@@ -1,3 +1,5 @@
+from random import choice
+
 import pygame
 from enum import Enum
 
@@ -32,9 +34,12 @@ class Occupied:
         return False
 
     def in_vicinity(self, pos):
+        close_points = list()
         for point in self.occ_pts:
             if 0 <= abs(pos[0] - point[0]) <= 10 and 0 <= abs(pos[1] - point[1]) <= 10:
-                return point
+                close_points.append(point)
+        if len(close_points) != 0:
+            return choice(close_points)
         return None
 
 
@@ -44,13 +49,15 @@ class Point:
         self.pos = pos
         match connection:
             case 0:
-                self.c = (0, 0, 255)
+                self.c = (70, 70, 170)
             case 1:
                 self.c = (50, 200, 50)
             case 2:
                 self.c = (160, 60, 190)
             case 3:
                 self.c = (190, 190, 20)
+            case 4:
+                self.c = (150, 150, 150)
 
     def draw(self):
         pygame.draw.circle(self.screen, self.c, self.pos, 10)
@@ -61,7 +68,7 @@ class Line:
         self.screen = screen
         self.pos = (pos_1, pos_2)
         try:
-            self.m = (pos_1[1]-pos_2[1])/(pos_1[0]-pos_2[0])
+            self.m = (pos_1[1] - pos_2[1]) / (pos_1[0] - pos_2[0])
             self.c = pos_1[1] - self.m * pos_1[0]
         except ZeroDivisionError:
             pass
@@ -94,10 +101,11 @@ class Circle:
     def __init__(self, screen, pos_1, pos_2, pos_3):
         self.screen = screen
         self.pos = (pos_1, pos_2, pos_3)
+        self.c, self.r = define_circle(self.pos)
 
     def draw(self):
-        Point(self.screen, self.pos[0], connection=True).draw()
-        Point(self.screen, self.pos[1], connection=True).draw()
-        Point(self.screen, self.pos[2], connection=True).draw()
-        c, r = define_circle(self.pos)
-        pygame.draw.circle(self.screen, (0, 0, 255), c, r, 3)
+        Point(self.screen, self.pos[0], connection=1).draw()
+        Point(self.screen, self.pos[1], connection=1).draw()
+        Point(self.screen, self.pos[2], connection=1).draw()
+        Point(self.screen, self.c, connection=4).draw()
+        pygame.draw.circle(self.screen, (200, 90, 90), self.c, self.r, 3)

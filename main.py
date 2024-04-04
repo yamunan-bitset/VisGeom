@@ -110,10 +110,42 @@ while running:
                 try:
                     int_x = (line2.c - line1.c) / (line1.m - line2.m)
                     int_y = line1.m * int_x + line1.c
-                    oc.add_point((int_x, int_y))
-                    points.append(geom.Point(screen, (int_x, int_y), connection=2))
+                    if line1.pos[0][0] <= int_x <= line1.pos[1][0] and line1.pos[0][1] <= int_y <= line1.pos[1][1]\
+                            or line1.pos[0][0] >= int_x >= line1.pos[1][0] and line1.pos[0][1] >= int_y >=\
+                            line1.pos[1][1]\
+                            and line2.pos[0][0] <= int_x <= line2.pos[1][0] and line2.pos[0][1] <= int_y <= line2.pos[1][1]\
+                            or line2.pos[0][0] >= int_x >= line2.pos[1][0] and line2.pos[0][1] >= int_y >=\
+                            line2.pos[1][1]:
+                        oc.add_point((int_x, int_y))
+                        points.append(geom.Point(screen, (int_x, int_y), connection=2))
                 except ZeroDivisionError:
                     pass
+                except AttributeError:
+                    pass
+            # TODO: Doesnt work
+            '''for circ in circles:
+                discriminant = (2 * line1.m * (line1.c - circ.c[1]) + 2 * circ.c[0]) ** 2 - 4 * (line1.m ** 2 + 1) * (
+                            circ.c[0] ** 2 + (line1.c - circ.c[1]) ** 2 - circ.r ** 2)
+                discriminant *= -1
+                if discriminant == 0:
+                    int_x = (-2 * line1.m * (line1.c - circ.c[1]) - 2 * circ.c[0]) / (2 * circ.c[0])
+                    int_y = line1.m * int_x + line1.c
+                    oc.add_point((int_x, int_y))
+                    points.append(geom.Point(screen, (int_x, int_y), connection=2))
+                elif discriminant > 0:
+                    int_x1 = (-2 * line1.m * (line1.c - circ.c[1]) - 2 * circ.c[0] + discriminant ** (1 / 2)) / (
+                                2 * circ.c[0])
+                    int_x2 = (-2 * line1.m * (line1.c - circ.c[1]) - 2 * circ.c[0] - discriminant ** (1 / 2)) / (
+                                2 * circ.c[0])
+                    int_y1 = line1.m * int_x1 + line1.c
+                    int_y2 = line1.m * int_x2 + line1.c
+                    oc.add_point((int_x1, int_y1))
+                    points.append(geom.Point(screen, (int_x1, int_y1), connection=2))
+                    oc.add_point((int_x2, int_y2))
+                    points.append(geom.Point(screen, (int_x2, int_y2), connection=2))
+                else:
+                    print("None")
+                    print(discriminant)'''
 
     b_points.render()
     b_lines.render()
