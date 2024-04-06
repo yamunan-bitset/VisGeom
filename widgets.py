@@ -26,7 +26,7 @@ class Button:
                 self.clicked = True
                 return True
 
-        self.clicked = False
+        #self.clicked = False
         return False
 
     def render(self):

@@ -13,12 +13,15 @@ b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.fo
                    (183, 183, 183), 240, 830, 20, 20)
 b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "/",
                  (183, 183, 183), 280, 830, 20, 20)
+b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Save",
+                 (183, 183, 183), 900, 820, 70, 50)
 b_clear = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Clear",
                  (183, 183, 183), 1000, 820, 70, 50)
 undo = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Undo",
               (183, 183, 183), 1100, 820, 70, 50)
 
 render_type = geom.Shape.IDLE
+screenshot_count = 0
 
 points = list()
 lines = list()
@@ -30,16 +33,33 @@ press_hist_c = list()
 
 running = True
 while running:
+    if render_type == geom.Shape.IDLE:
+        b_circles.clicked = False
+        b_lines.clicked = False
+        b_points.clicked = False
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         pos = pygame.mouse.get_pos()
         if b_points.handle_event(event, pos):
             render_type = geom.Shape.POINT
+            b_points.clicked = True
+            b_circles.clicked = False
+            b_lines.clicked = False
         if b_circles.handle_event(event, pos):
             render_type = geom.Shape.CIRCLE
+            b_circles.clicked = True
+            b_lines.clicked = False
+            b_points.clicked = False
         if b_lines.handle_event(event, pos):
             render_type = geom.Shape.LINE
+            b_lines.clicked = True
+            b_circles.clicked = False
+            b_points.clicked = False
+        if b_save.handle_event(event, pos):
+            screenshot_count += 1
+            pygame.image.save(screen, f"screenshot_{screenshot_count}.jpg")
         if b_clear.handle_event(event, pos):
             points = []
             lines = []
@@ -65,7 +85,7 @@ while running:
         if pos[1] < 800:
             if oc.in_vicinity(pos) is not None:
                 cal_pos = oc.in_vicinity(pos)
-            elif not (0 < pos[0] % 75 < 20 or 55 < pos[0] < 75) and not (0 < pos[1] % 75 < 20 or 55 < pos[1] < 75):
+            elif not (0 < pos[0] % 75 < 15 or 60 < pos[0] < 75) and not (0 < pos[1] % 75 < 15 or 60 < pos[1] < 75):
                 cal_pos = (pos[0] - pos[0] % 75 + 50, pos[1] - pos[1] % 75 + 50)
             else:
                 cal_pos = pos
@@ -107,21 +127,34 @@ while running:
     if len(lines) >= 2:
         for line1 in lines:
             for line2 in lines:
-                try:
-                    int_x = (line2.c - line1.c) / (line1.m - line2.m)
-                    int_y = line1.m * int_x + line1.c
-                    if line1.pos[0][0] <= int_x <= line1.pos[1][0] and line1.pos[0][1] <= int_y <= line1.pos[1][1]\
-                            or line1.pos[0][0] >= int_x >= line1.pos[1][0] and line1.pos[0][1] >= int_y >=\
-                            line1.pos[1][1]\
-                            and line2.pos[0][0] <= int_x <= line2.pos[1][0] and line2.pos[0][1] <= int_y <= line2.pos[1][1]\
-                            or line2.pos[0][0] >= int_x >= line2.pos[1][0] and line2.pos[0][1] >= int_y >=\
-                            line2.pos[1][1]:
+                if line1.m == 0 and line2.m != 0:
+                    if line2.pos[0][0] <= line1.pos[0][0] <= line2.pos[1][0]:
+                        int_x = line1.pos[0][0]
+                        int_y = line2.m * int_x + line2.c
                         oc.add_point((int_x, int_y))
                         points.append(geom.Point(screen, (int_x, int_y), connection=2))
-                except ZeroDivisionError:
-                    pass
-                except AttributeError:
-                    pass
+                elif line2.m == 0 and line1.m != 0:
+                    if line1.pos[0][0] <= line2.pos[0][0] <= line1.pos[1][0]:
+                        int_x = line2.pos[0][0]
+                        int_y = line1.m * int_x + line1.c
+                        oc.add_point((int_x, int_y))
+                        points.append(geom.Point(screen, (int_x, int_y), connection=2))
+                elif line1.m != 0 and line2.m != 0:
+                    try:
+                        int_x = (line2.c - line1.c) / (line1.m - line2.m)
+                        int_y = line1.m * int_x + line1.c
+                        if line1.pos[0][0] <= int_x <= line1.pos[1][0] and line1.pos[0][1] <= int_y <= line1.pos[1][1]\
+                                or line1.pos[0][0] >= int_x >= line1.pos[1][0] and line1.pos[0][1] >= int_y >=\
+                                line1.pos[1][1]\
+                                and line2.pos[0][0] <= int_x <= line2.pos[1][0] and line2.pos[0][1] <= int_y <= line2.pos[1][1]\
+                                or line2.pos[0][0] >= int_x >= line2.pos[1][0] and line2.pos[0][1] >= int_y >=\
+                                line2.pos[1][1]:
+                            oc.add_point((int_x, int_y))
+                            points.append(geom.Point(screen, (int_x, int_y), connection=2))
+                    except ZeroDivisionError:
+                        pass
+                    except AttributeError:
+                        pass
             # TODO: Doesnt work
             '''for circ in circles:
                 discriminant = (2 * line1.m * (line1.c - circ.c[1]) + 2 * circ.c[0]) ** 2 - 4 * (line1.m ** 2 + 1) * (
@@ -150,6 +183,7 @@ while running:
     b_points.render()
     b_lines.render()
     b_circles.render()
+    b_save.render()
     b_clear.render()
     undo.render()
     if cal_pos is not None and not oc.if_is_occupied(cal_pos):

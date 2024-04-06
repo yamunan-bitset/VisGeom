@@ -71,7 +71,7 @@ class Line:
             self.m = (pos_1[1] - pos_2[1]) / (pos_1[0] - pos_2[0])
             self.c = pos_1[1] - self.m * pos_1[0]
         except ZeroDivisionError:
-            pass
+            self.m = 0
 
     def draw(self):
         Point(self.screen, self.pos[0], connection=1).draw()
