@@ -13,8 +13,8 @@ b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.fo
                    (183, 183, 183), 240, 830, 20, 20)
 b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "/",
                  (183, 183, 183), 280, 830, 20, 20)
-b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Save",
-                 (183, 183, 183), 900, 820, 70, 50)
+b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Caputre",
+                 (183, 183, 183), 880, 820, 90, 50)
 b_clear = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Clear",
                  (183, 183, 183), 1000, 820, 70, 50)
 undo = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Undo",
@@ -30,6 +30,7 @@ cal_pos = (-2, -2)
 oc = geom.Occupied()
 press_hist_l = list()
 press_hist_c = list()
+clicked = list()
 
 running = True
 while running:
@@ -98,17 +99,20 @@ while running:
                     press_hist_l.append(cal_pos)
                     if len(press_hist_l) % 2 == 0:
                         lines.append(geom.Line(screen, press_hist_l[-1], press_hist_l[-2]))
+                        clicked = list()
                     else:
-                        points.append(geom.Point(screen, cal_pos, connection=3))
+                        clicked.append(geom.Point(screen, cal_pos, connection=3))
                 case geom.Shape.CIRCLE:
                     press_hist_c.append(cal_pos)
                     if len(press_hist_c) % 3 == 0:
                         if press_hist_c[-1] != press_hist_c[-2] and press_hist_c[-3] != press_hist_c[-2] and \
                                 press_hist_c[-1] != press_hist_c[-3]:
-                            circles.append(
-                                geom.Circle(screen, press_hist_c[-1], press_hist_c[-2], press_hist_c[-3]))
+                            _circ = geom.Circle(screen, press_hist_c[-1], press_hist_c[-2], press_hist_c[-3])
+                            circles.append(_circ)
+                            oc.add_point(_circ.c)
+                            clicked = list()
                     else:
-                        points.append(geom.Point(screen, cal_pos, connection=3))
+                        clicked.append(geom.Point(screen, cal_pos, connection=3))
     screen.fill((50, 50, 50))
     for i in range(16):
         pygame.draw.line(screen, (200, 200, 200), (50 + 75 * i, 0), (50 + 75 * i, 800))
@@ -123,6 +127,8 @@ while running:
             circle.draw()
         except TypeError:
             pass
+    for clicks in clicked:
+        clicks.draw()
 
     if len(lines) >= 2:
         for line1 in lines:
