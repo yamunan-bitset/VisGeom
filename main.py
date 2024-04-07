@@ -186,9 +186,9 @@ while running:
                     print("None")
                     print(discriminant)'''
 
-    b_points.render()
-    b_lines.render()
     b_circles.render()
+    b_lines.render()
+    b_points.render()
     b_save.render()
     b_clear.render()
     undo.render()

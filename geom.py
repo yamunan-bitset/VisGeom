@@ -1,8 +1,8 @@
 from random import choice
-
-import pygame
+import math
 from enum import Enum
-
+import pygame
+import pygame.gfxdraw
 
 class Shape(Enum):
     IDLE = 0
@@ -63,6 +63,25 @@ class Point:
         pygame.draw.circle(self.screen, self.c, self.pos, 10)
 
 
+def drawLineWidth(surface, color, p1, p2, width):
+    d = (p2[0] - p1[0], p2[1] - p1[1])
+    try:
+        dis = math.hypot(*d)
+        n = (d[0]/dis, d[1]/dis)
+    except ZeroDivisionError:
+        return
+
+    p = (-n[1], n[0])
+    sp = (p[0]*width/2, p[1]*width/2)
+
+    p1_1 = (p1[0] - sp[0], p1[1] - sp[1])
+    p1_2 = (p1[0] + sp[0], p1[1] + sp[1])
+    p2_1 = (p2[0] - sp[0], p2[1] - sp[1])
+    p2_2 = (p2[0] + sp[0], p2[1] + sp[1])
+
+    pygame.gfxdraw.aapolygon(surface, (p1_1, p1_2, p2_2, p2_1), color)
+    pygame.gfxdraw.filled_polygon(surface, (p1_1, p1_2, p2_2, p2_1), color)
+
 class Line:
     def __init__(self, screen, pos_1, pos_2):
         self.screen = screen
@@ -74,9 +93,9 @@ class Line:
             self.m = 0
 
     def draw(self):
+        drawLineWidth(self.screen, (150, 0, 100), self.pos[0], self.pos[1], 7)
         Point(self.screen, self.pos[0], connection=1).draw()
         Point(self.screen, self.pos[1], connection=1).draw()
-        pygame.draw.line(self.screen, (255, 0, 100), self.pos[0], self.pos[1])
 
 
 def define_circle(pos):
@@ -104,8 +123,8 @@ class Circle:
         self.c, self.r = define_circle(self.pos)
 
     def draw(self):
+        pygame.draw.circle(self.screen, (200, 90, 90), self.c, self.r, 7)
         Point(self.screen, self.pos[0], connection=1).draw()
         Point(self.screen, self.pos[1], connection=1).draw()
         Point(self.screen, self.pos[2], connection=1).draw()
         Point(self.screen, self.c, connection=4).draw()
-        pygame.draw.circle(self.screen, (200, 90, 90), self.c, self.r, 3)
