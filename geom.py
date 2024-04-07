@@ -60,7 +60,7 @@ class Point:
                 self.c = (150, 150, 150)
 
     def draw(self):
-        pygame.draw.circle(self.screen, self.c, self.pos, 10)
+        pygame.draw.circle(self.screen, self.c, self.pos, 7)
 
 
 def drawLineWidth(surface, color, p1, p2, width):

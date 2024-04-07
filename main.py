@@ -34,6 +34,9 @@ clicked = list()
 
 running = True
 while running:
+    b_save.clicked = False
+    undo.cliced = False
+    b_clear.clicked = False
     if render_type == geom.Shape.IDLE:
         b_circles.clicked = False
         b_lines.clicked = False
@@ -81,6 +84,7 @@ while running:
                         pass
             except IndexError:
                 pass
+            undo.clicked = False
         pressed = pygame.mouse.get_pressed()
         cal_pos = None
         if pos[1] < 800:
@@ -193,7 +197,7 @@ while running:
     b_clear.render()
     undo.render()
     if cal_pos is not None and not oc.if_is_occupied(cal_pos):
-        pygame.draw.circle(screen, (180, 80, 80), cal_pos, 10)
+        pygame.draw.circle(screen, (180, 80, 80), cal_pos, 7)
     pygame.display.update()
 
 pygame.quit()
