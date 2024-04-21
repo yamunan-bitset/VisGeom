@@ -47,6 +47,7 @@ class Point:
     def __init__(self, screen, pos, connection=0):
         self.screen = screen
         self.pos = pos
+        self.r = 7
         match connection:
             case 0:
                 self.c = (70, 70, 170)
@@ -54,13 +55,14 @@ class Point:
                 self.c = (50, 200, 50)
             case 2:
                 self.c = (160, 60, 190)
+                self.r = 10
             case 3:
                 self.c = (190, 190, 20)
             case 4:
                 self.c = (150, 150, 150)
 
     def draw(self):
-        pygame.draw.circle(self.screen, self.c, self.pos, 7)
+        pygame.draw.circle(self.screen, self.c, self.pos, self.r)
 
 
 def drawLineWidth(surface, color, p1, p2, width):
@@ -93,7 +95,7 @@ class Line:
             self.m = 0
 
     def draw(self):
-        drawLineWidth(self.screen, (150, 0, 100), self.pos[0], self.pos[1], 7)
+        drawLineWidth(self.screen, (0, 0, 190), self.pos[0], self.pos[1], 7)
         Point(self.screen, self.pos[0], connection=1).draw()
         Point(self.screen, self.pos[1], connection=1).draw()
 

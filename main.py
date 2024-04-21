@@ -94,7 +94,8 @@ while running:
                 cal_pos = (pos[0] - pos[0] % 75 + 50, pos[1] - pos[1] % 75 + 50)
             else:
                 cal_pos = pos
-        if pressed[0] and cal_pos is not None:
+        if (pressed[0] or pressed[2]) and cal_pos is not None:
+            if pressed[2]: cal_pos = pos
             oc.add_point(cal_pos)
             match render_type:
                 case geom.Shape.POINT:
@@ -117,11 +118,11 @@ while running:
                             clicked = list()
                     else:
                         clicked.append(geom.Point(screen, cal_pos, connection=3))
-    screen.fill((50, 50, 50))
+    screen.fill((250, 250, 250))
     for i in range(16):
-        pygame.draw.line(screen, (200, 200, 200), (50 + 75 * i, 0), (50 + 75 * i, 800))
+        pygame.draw.line(screen, (200, 200, 250), (50 + 75 * i, 0), (50 + 75 * i, 800))
     for j in range(12):
-        pygame.draw.line(screen, (200, 200, 200), (0, 50 + 75 * j), (1200, 50 + 75 * j))
+        pygame.draw.line(screen, (200, 200, 250), (0, 50 + 75 * j), (1200, 50 + 75 * j))
     for point in points:
         point.draw()
     for line in lines:
@@ -134,7 +135,7 @@ while running:
     for clicks in clicked:
         clicks.draw()
 
-    if len(lines) >= 2:
+    if len(lines) >= 1:
         for line1 in lines:
             for line2 in lines:
                 if line1.m == 0 and line2.m != 0:
