@@ -90,7 +90,7 @@ while running:
         if pos[1] < 800:
             if oc.in_vicinity(pos) is not None:
                 cal_pos = oc.in_vicinity(pos)
-            elif not (0 < pos[0] % 75 < 15 or 60 < pos[0] < 75) and not (0 < pos[1] % 75 < 15 or 60 < pos[1] < 75):
+            elif not (0 < pos[0] % 100 < 15 or 60 < pos[0] % 100 < 75) and not (0 < pos[1] % 100 < 15 or 60 < pos[1] % 100 < 75):
                 cal_pos = (pos[0] - pos[0] % 75 + 50, pos[1] - pos[1] % 75 + 50)
             else:
                 cal_pos = pos
