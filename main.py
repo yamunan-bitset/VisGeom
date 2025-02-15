@@ -13,8 +13,8 @@ b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.fo
                    (183, 183, 183), 220, 830, 40, 40)
 b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 50), "/",
                  (183, 183, 183), 280, 830, 40, 40)
-b_protractor = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 10), "Toggle Protractor",
-                 (183, 183, 183), 400, 830, 70, 50)
+b_protractor = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 20), "Protractor",
+                 (183, 183, 183), 400, 820, 70, 50)
 b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Capture",
                  (183, 183, 183), 880, 820, 90, 50)
 b_clear = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Clear",
@@ -23,6 +23,7 @@ undo = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.Sy
               (183, 183, 183), 1100, 820, 70, 50)
 
 render_type = geom.Shape.IDLE
+render_type_hist = list()
 screenshot_count = 0
 
 points = list()
@@ -37,6 +38,7 @@ clicked = list()
 
 protractor = pygame.image.load("protractor.png")
 toggle_protractor = False
+protractor_positions = geom.Occupied()
 
 for i in range(16):
     for j in range(12):
@@ -58,16 +60,19 @@ while running:
             running = False
         pos = pygame.mouse.get_pos()
         if b_points.handle_event(event, pos):
+            render_type_hist.append(render_type)
             render_type = geom.Shape.POINT
             b_points.clicked = True
             b_circles.clicked = False
             b_lines.clicked = False
         if b_circles.handle_event(event, pos):
+            render_type_hist.append(render_type)
             render_type = geom.Shape.CIRCLE
             b_circles.clicked = True
             b_lines.clicked = False
             b_points.clicked = False
         if b_lines.handle_event(event, pos):
+            render_type_hist.append(render_type)
             render_type = geom.Shape.LINE
             b_lines.clicked = True
             b_circles.clicked = False
@@ -82,7 +87,10 @@ while running:
             press_hist_l = []
             press_hist_c = []
             oc = geom.Occupied()
+            protractor_positions = geom.Occupied()
         if b_protractor.handle_event(event, pos):
+            render_type_hist.append(render_type)
+            render_type = geom.Misc.PROTRACTOR
             toggle_protractor = not toggle_protractor
         if undo.handle_event(event, pos):
             try:
@@ -95,6 +103,10 @@ while running:
                         circles.pop()
                     case geom.Shape.IDLE:
                         pass
+                    case geom.Misc.PROTRACTOR:
+                        protractor_positions.occ_pts.pop()
+                render_type_hist.pop()
+                render_type = render_type_hist[-1]
             except IndexError:
                 pass
             undo.clicked = False
@@ -107,33 +119,46 @@ while running:
                 cal_pos = grid.in_vicinity(pos)
             else:
                 cal_pos = pos
-        if (pressed[0] or pressed[2]) and cal_pos is not None:
-            if pressed[2]: cal_pos = pos
-            oc.add_point(cal_pos)
-            match render_type:
-                case geom.Shape.POINT:
-                    points.append(geom.Point(screen, cal_pos, connection=0))
-                case geom.Shape.LINE:
-                    press_hist_l.append(cal_pos)
-                    if len(press_hist_l) % 2 == 0:
-                        lines.append(geom.Line(screen, press_hist_l[-1], press_hist_l[-2]))
-                        clicked = list()
-                    else:
-                        clicked.append(geom.Point(screen, cal_pos, connection=3))
-                case geom.Shape.CIRCLE:
-                    press_hist_c.append(cal_pos)
-                    if len(press_hist_c) % 3 == 0:
-                        if press_hist_c[-1] != press_hist_c[-2] and press_hist_c[-3] != press_hist_c[-2] and \
-                                press_hist_c[-1] != press_hist_c[-3]:
-                            _circ = geom.Circle(screen, press_hist_c[-1], press_hist_c[-2], press_hist_c[-3])
-                            circles.append(_circ)
-                            oc.add_point(_circ.c)
+        if not toggle_protractor:
+            if (pressed[0] or pressed[2]) and cal_pos is not None:
+                if pressed[2]: cal_pos = pos
+                oc.add_point(cal_pos)
+                match render_type:
+                    case geom.Shape.POINT:
+                        render_type_hist.append(render_type)
+                        points.append(geom.Point(screen, cal_pos, connection=0))
+                    case geom.Shape.LINE:
+                        press_hist_l.append(cal_pos)
+                        if len(press_hist_l) % 2 == 0:
+                            render_type_hist.append(render_type)
+                            lines.append(geom.Line(screen, press_hist_l[-1], press_hist_l[-2]))
                             clicked = list()
-                    else:
-                        clicked.append(geom.Point(screen, cal_pos, connection=3))
+                        else:
+                            clicked.append(geom.Point(screen, cal_pos, connection=3))
+                    case geom.Shape.CIRCLE:
+                        press_hist_c.append(cal_pos)
+                        if len(press_hist_c) % 3 == 0:
+                            render_type_hist.append(render_type)
+                            if press_hist_c[-1] != press_hist_c[-2] and press_hist_c[-3] != press_hist_c[-2] and \
+                                    press_hist_c[-1] != press_hist_c[-3]:
+                                _circ = geom.Circle(screen, press_hist_c[-1], press_hist_c[-2], press_hist_c[-3])
+                                circles.append(_circ)
+                                oc.add_point(_circ.c)
+                                clicked = list()
+                        else:
+                            clicked.append(geom.Point(screen, cal_pos, connection=3))
+        elif toggle_protractor:
+            if pressed[0] and pos[1] < 800:
+                protractor_positions.add_point(cal_pos)
+            elif pressed[1]:
+                #TODO: flip the protractor
+                pass
+
     screen.fill((250, 250, 250))
     if toggle_protractor:
-        screen.blit(protractor, (0, 0))
+        screen.blit(protractor, (pos[0]-360, pos[1]-300))
+    for i in protractor_positions.occ_pts:
+        screen.blit(protractor, (i[0]-360, i[1]-300))
     for i in range(16):
         pygame.draw.line(screen, (200, 200, 250), (50 + 75 * i, 0), (50 + 75 * i, 800))
     for j in range(12):
@@ -213,7 +238,7 @@ while running:
     b_save.render()
     b_clear.render()
     undo.render()
-    if cal_pos is not None and not oc.if_is_occupied(cal_pos):
+    if not toggle_protractor and cal_pos is not None and not oc.if_is_occupied(cal_pos):
         pygame.draw.circle(screen, (180, 80, 80), cal_pos, 7)
     pygame.display.update()
 

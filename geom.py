@@ -10,6 +10,8 @@ class Shape(Enum):
     LINE = 2
     CIRCLE = 3
 
+class Misc(Enum):
+    PROTRACTOR = 10
 
 class Occupied:
     def __init__(self):
