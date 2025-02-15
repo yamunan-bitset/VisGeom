@@ -7,13 +7,15 @@ pygame.init()
 screen = pygame.display.set_mode((1200, 900))
 pygame.display.set_caption("VisGeom")
 
-b_points = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), ".",
-                  (183, 183, 183), 200, 830, 20, 20)
-b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "o",
-                   (183, 183, 183), 240, 830, 20, 20)
-b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "/",
-                 (183, 183, 183), 280, 830, 20, 20)
-b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Caputre",
+b_points = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 50), ".",
+                  (183, 183, 183), 160, 830, 40, 40)
+b_circles = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 50), "o",
+                   (183, 183, 183), 220, 830, 40, 40)
+b_lines = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 50), "/",
+                 (183, 183, 183), 280, 830, 40, 40)
+b_protractor = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 10), "Toggle Protractor",
+                 (183, 183, 183), 400, 830, 70, 50)
+b_save = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Capture",
                  (183, 183, 183), 880, 820, 90, 50)
 b_clear = Button(screen, (180, 20, 10), (180, 80, 10), (10, 75, 20), pygame.font.SysFont(None, 30), "Clear",
                  (183, 183, 183), 1000, 820, 70, 50)
@@ -33,8 +35,11 @@ press_hist_l = list()
 press_hist_c = list()
 clicked = list()
 
-for i in range(10):
-    for j in range(10):
+protractor = pygame.image.load("protractor.png")
+toggle_protractor = False
+
+for i in range(16):
+    for j in range(12):
         grid.add_point((50+i*75, 50+j*75))
 
 
@@ -77,6 +82,8 @@ while running:
             press_hist_l = []
             press_hist_c = []
             oc = geom.Occupied()
+        if b_protractor.handle_event(event, pos):
+            toggle_protractor = not toggle_protractor
         if undo.handle_event(event, pos):
             try:
                 match render_type:
@@ -125,6 +132,8 @@ while running:
                     else:
                         clicked.append(geom.Point(screen, cal_pos, connection=3))
     screen.fill((250, 250, 250))
+    if toggle_protractor:
+        screen.blit(protractor, (0, 0))
     for i in range(16):
         pygame.draw.line(screen, (200, 200, 250), (50 + 75 * i, 0), (50 + 75 * i, 800))
     for j in range(12):
@@ -200,6 +209,7 @@ while running:
     b_circles.render()
     b_lines.render()
     b_points.render()
+    b_protractor.render()
     b_save.render()
     b_clear.render()
     undo.render()
