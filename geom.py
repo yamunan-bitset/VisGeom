@@ -12,6 +12,7 @@ class Shape(Enum):
 
 class Misc(Enum):
     PROTRACTOR = 10
+    FLIP_PROTRACTOR = 11
 
 class Occupied:
     def __init__(self):

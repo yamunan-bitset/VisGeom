@@ -37,8 +37,11 @@ press_hist_c = list()
 clicked = list()
 
 protractor = pygame.image.load("protractor.png")
+protractor_flipped = pygame.transform.flip(protractor, False, True)
 toggle_protractor = False
+toggle_flip = False
 protractor_positions = geom.Occupied()
+protractor_flip_positions = geom.Occupied()
 
 for i in range(16):
     for j in range(12):
@@ -88,9 +91,13 @@ while running:
             press_hist_c = []
             oc = geom.Occupied()
             protractor_positions = geom.Occupied()
+            protractor_flip_positions = geom.Occupied()
         if b_protractor.handle_event(event, pos):
             render_type_hist.append(render_type)
-            render_type = geom.Misc.PROTRACTOR
+            if toggle_flip:
+                render_type = geom.Misc.FLIP_PROTRACTOR
+            else:
+                render_type = geom.Misc.PROTRACTOR
             toggle_protractor = not toggle_protractor
         if undo.handle_event(event, pos):
             try:
@@ -105,6 +112,8 @@ while running:
                         pass
                     case geom.Misc.PROTRACTOR:
                         protractor_positions.occ_pts.pop()
+                    case geom.Misc.FLIP_PROTRACTOR:
+                        protractor_flip_positions.occ_pts.pop()
                 render_type_hist.pop()
                 render_type = render_type_hist[-1]
             except IndexError:
@@ -149,16 +158,27 @@ while running:
                             clicked.append(geom.Point(screen, cal_pos, connection=3))
         elif toggle_protractor:
             if pressed[0] and pos[1] < 800:
-                protractor_positions.add_point(cal_pos)
-            elif pressed[1]:
-                #TODO: flip the protractor
-                pass
+                if toggle_flip:
+                    render_type = geom.Misc.FLIP_PROTRACTOR
+                    render_type_hist.append(render_type)
+                    protractor_flip_positions.add_point(cal_pos)
+                else:
+                    render_type = geom.Misc.PROTRACTOR
+                    render_type_hist.append(render_type)
+                    protractor_positions.add_point(cal_pos)
+            elif pressed[2]:
+                toggle_flip = not toggle_flip
 
     screen.fill((250, 250, 250))
     if toggle_protractor:
-        screen.blit(protractor, (pos[0]-360, pos[1]-300))
+        if toggle_flip:
+            screen.blit(protractor_flipped, (pos[0]-360, pos[1]-300))
+        else:
+            screen.blit(protractor, (pos[0]-360, pos[1]-300))
     for i in protractor_positions.occ_pts:
         screen.blit(protractor, (i[0]-360, i[1]-300))
+    for i in protractor_flip_positions.occ_pts:
+        screen.blit(protractor_flipped, (i[0]-360, i[1]-300))
     for i in range(16):
         pygame.draw.line(screen, (200, 200, 250), (50 + 75 * i, 0), (50 + 75 * i, 800))
     for j in range(12):
