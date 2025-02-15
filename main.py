@@ -28,9 +28,15 @@ lines = list()
 circles = list()
 cal_pos = (-2, -2)
 oc = geom.Occupied()
+grid = geom.Occupied()
 press_hist_l = list()
 press_hist_c = list()
 clicked = list()
+
+for i in range(10):
+    for j in range(10):
+        grid.add_point((50+i*75, 50+j*75))
+
 
 running = True
 while running:
@@ -90,8 +96,8 @@ while running:
         if pos[1] < 800:
             if oc.in_vicinity(pos) is not None:
                 cal_pos = oc.in_vicinity(pos)
-            elif not (0 < pos[0] % 100 < 15 or 60 < pos[0] % 100 < 75) and not (0 < pos[1] % 100 < 15 or 60 < pos[1] % 100 < 75):
-                cal_pos = (pos[0] - pos[0] % 75 + 50, pos[1] - pos[1] % 75 + 50)
+            elif grid.in_vicinity(pos) is not None:
+                cal_pos = grid.in_vicinity(pos)
             else:
                 cal_pos = pos
         if (pressed[0] or pressed[2]) and cal_pos is not None:
